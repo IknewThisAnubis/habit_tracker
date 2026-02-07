@@ -20,3 +20,17 @@ class AuthTest(TestCase):
     def test_login_required(self):
         response = self.client.get("/dashboard/")
         self.assertEqual(response.status_code, 302)
+
+class DashboardViewTest(TestCase):
+    def test_user_sees_only_own_habits(self):
+        u1 = User.objects.create_user("u1", password="p")
+        u2 = User.objects.create_user("u2", password="p")
+        Habit.objects.create(user=u1, name="A")
+        Habit.objects.create(user=u2, name="B")
+
+        self.client.login(username="u1", password="p")
+        response = self.client.get(reverse("dashboard"))
+
+        self.assertContains(response, "A")
+        self.assertNotContains(response, "B")
+
