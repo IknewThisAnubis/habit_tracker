@@ -17,7 +17,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          working-directory: habit_tracker/habitrack
+        working-directory: habit_tracker/habitrack
 
       - name: Run migrations
         run: python manage.py migrate
