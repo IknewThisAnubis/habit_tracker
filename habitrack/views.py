@@ -5,4 +5,4 @@ from .models import Habit
 @login_required
 def dashboard(request):
     habits = Habit.objects.filter(user=request.user)
-    return render(request, "tracker/dashboard.html", {"habits": habits})
+    return render(request, "habitrack/dashboard.html", {"habits": habits})
