@@ -29,7 +29,7 @@ class DashboardViewTest(TestCase):
         Habit.objects.create(user=u2, name="B")
 
         self.client.login(username="u1", password="p")
-        response = self.client.get(reverse("dashboard"))
+        response = self.client.get(reverse("/dashboard/"))
 
         self.assertContains(response, "A")
         self.assertNotContains(response, "B")
