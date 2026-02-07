@@ -16,10 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .views import dashboard
+from .views import dashboard, create_habit, register
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
     path("dashboard/", dashboard, name="dashboard"),
+    path("habits/create/", create_habit, name="create_habit"),
+    path("register/", register, name="register"),
 ]

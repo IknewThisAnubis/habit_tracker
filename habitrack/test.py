@@ -34,3 +34,16 @@ class DashboardViewTest(TestCase):
         self.assertContains(response, "A")
         self.assertNotContains(response, "B")
 
+class CreateHabitTest(TestCase):
+    def test_create_habit(self):
+        user = User.objects.create_user("u", password="p")
+        self.client.login(username="u", password="p")
+        response = self.client.post("/habits/create/", {"name": "X"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Habit.objects.count(), 1)
+
+class RegisterTest(TestCase):
+    def test_register(self):
+        response = self.client.post("/register/", {"username": "x", "password": "y"})
+        self.assertEqual(response.status_code, 302)  # redirect to dashboard
+        self.assertTrue(User.objects.filter(username="x").exists())
