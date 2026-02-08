@@ -8,3 +8,11 @@ class Habit(models.Model):
 
     def __str__(self):
         return self.name
+    
+class HabitLog(models.Model):
+    habit = models.ForeignKey(Habit, on_delete=models.CASCADE, related_name="logs")
+    date = models.DateField(default=date.today)
+    completed = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ("habit", "date")

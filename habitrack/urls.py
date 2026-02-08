@@ -24,4 +24,5 @@ urlpatterns = [
     path("dashboard/", dashboard, name="dashboard"),
     path("habits/create/", create_habit, name="create_habit"),
     path("register/", register, name="register"),
+    path("habits/<int:habit_id>/log/", views.log_habit, name="log_habit"),
 ]
