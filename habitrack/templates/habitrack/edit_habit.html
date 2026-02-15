@@ -1,0 +1,17 @@
+{% extends "habitrack/layout.html" %}
+
+{% block title %}Edit Habit{% endblock %}
+
+{% block content %}
+  <h1>Edit Habit</h1>
+  <p>Editing: <strong>{{ habit.name }}</strong></p>
+
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.name.errors }}
+    {{ form.name }}
+    <button type="submit">Save</button>
+  </form>
+
+  <p><a href="{% url 'habits' %}">Back to habits</a></p>
+{% endblock %}

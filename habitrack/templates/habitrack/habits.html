@@ -1,0 +1,39 @@
+{% extends "habitrack/layout.html" %}
+
+{% block title %}Habits{% endblock %}
+
+{% block content %}
+  <h1>Manage Habits</h1>
+
+  <section>
+    <h2>Add Habit</h2>
+    <form method="POST" action="{% url 'habits' %}">
+      {% csrf_token %}
+      {{ form.name.errors }}
+      {{ form.name }}
+      <button type="submit">Add</button>
+    </form>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2>Your Habits</h2>
+    {% if habits %}
+      <ul>
+        {% for habit in habits %}
+          <li>
+            <strong>{{ habit.name }}</strong>
+            <a href="{% url 'edit_habit' habit.id %}">Edit</a>
+            <form method="POST" action="{% url 'delete_habit' habit.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit">Delete</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No habits yet.</p>
+    {% endif %}
+  </section>
+{% endblock %}

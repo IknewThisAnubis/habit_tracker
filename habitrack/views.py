@@ -1,19 +1,14 @@
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.models import User
-from django import forms
-from .models import Habit
-from django.utils.timezone import now
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
+from django.views.decorators.http import require_POST, require_http_methods
 
-class RegisterForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-
-    class Meta:
-        model = User
-        fields = ["username", "password"]
+from .forms import RegisterForm, HabitForm
+from .models import Habit, HabitLog
+from .utils import calculate_streak, calculate_overall_streak
 
 def register(request):
     if request.method == "POST":
@@ -27,33 +22,90 @@ def register(request):
             return redirect("dashboard")
     else:
         form = RegisterForm()
-    return render(request, "registration/register.html", {"form": form})
+    return render(request, "habitrack/register.html", {"form": form})
 
 @login_required
 def dashboard(request):
-    habits = Habit.objects.filter(user=request.user)
-    return render(request, "habitrack/dashboard.html", {"habits": habits})
+    habits = Habit.objects.filter(user=request.user).order_by("created_at")
+    today = timezone.localdate()
+    for habit in habits:
+        habit.streak = calculate_streak(habit)
+        habit.done_today = habit.logs.filter(date=today, completed=True).exists()
+    overall_streak = calculate_overall_streak(request.user)
+    return render(
+        request,
+        "habitrack/dashboard.html",
+        {
+            "habits": habits,
+            "current_date": today,
+            "overall_streak": overall_streak,
+        },
+    )
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def habits_page(request):
+    if request.method == "POST":
+        form = HabitForm(request.POST)
+        if form.is_valid():
+            habit = form.save(commit=False)
+            habit.user = request.user
+            habit.save()
+            return redirect("habits")
+    else:
+        form = HabitForm()
+
+    habits = Habit.objects.filter(user=request.user).order_by("created_at")
+    return render(
+        request,
+        "habitrack/habits.html",
+        {
+            "habits": habits,
+            "form": form,
+        },
+    )
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def edit_habit(request, habit_id):
+    habit = get_object_or_404(Habit, id=habit_id, user=request.user)
+    if request.method == "POST":
+        form = HabitForm(request.POST, instance=habit)
+        if form.is_valid():
+            form.save()
+            return redirect("dashboard")
+    else:
+        form = HabitForm(instance=habit)
+    return render(
+        request,
+        "habitrack/edit_habit.html",
+        {"form": form, "habit": habit},
+    )
 
 @require_POST
 @login_required
-def create_habit(request):
-    name = request.POST.get("name")
-    habit = Habit.objects.create(user=request.user, name=name)
-    return JsonResponse({"id": habit.id, "name": habit.name})
+def delete_habit(request, habit_id):
+    habit = get_object_or_404(Habit, id=habit_id, user=request.user)
+    habit.delete()
+    return redirect("habits")
 
+@require_POST
 @login_required
 def log_habit(request, habit_id):
-    habit = Habit.objects.get(id=habit_id, user=request.user)
-    log, _ = HabitLog.objects.get_or_create(habit=habit, date=now().date())
-    log.completed = True
-    log.save()
-    return JsonResponse({"status": "logged"})
-
-from .utils import calculate_streak
-
-@login_required
-def dashboard(request):
-    habits = Habit.objects.filter(user=request.user)
-    for h in habits:
-        h.streak = calculate_streak(h)
-    return render(request, "tracker/dashboard.html", {"habits": habits})
+    habit = get_object_or_404(Habit, id=habit_id, user=request.user)
+    today = timezone.localdate()
+    log, created = HabitLog.objects.get_or_create(
+        habit=habit,
+        date=today,
+        defaults={"completed": True},
+    )
+    if not created and not log.completed:
+        log.completed = True
+        log.save()
+    return JsonResponse(
+        {
+            "status": "logged",
+            "streak": calculate_streak(habit),
+            "overall_streak": calculate_overall_streak(request.user),
+        }
+    )

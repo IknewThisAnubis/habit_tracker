@@ -1,3 +1,32 @@
-{% for habit in habits %}
-{{ habit.name }}
-{% endfor %}
+{% extends "habitrack/layout.html" %}
+{% load static %}
+
+{% block title %}Habitrack{% endblock %}
+
+{% block script %}
+  <script src="{% static 'habitrack/app.js' %}" defer></script>
+{% endblock %}
+
+{% block content %}
+  <h1>Dashboard</h1>
+  <p>Today: {{ current_date|date:"F j, Y" }}</p>
+  <h2>Overall Streak: <span id="overall-streak">{{ overall_streak }}</span> days</h2>
+  <p class="muted">Overall streak counts days where every habit was completed.</p>
+
+  {% if habits %}
+    <div class="grid">
+      {% for habit in habits %}
+        <button
+          class="habit-btn"
+          data-habit-id="{{ habit.id }}"
+          data-done="{{ habit.done_today|yesno:'1,0' }}"
+          {% if habit.done_today %}disabled{% endif %}
+        >
+          {{ habit.name }}
+        </button>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No habits yet. Add some in the Habits page.</p>
+  {% endif %}
+{% endblock %}
