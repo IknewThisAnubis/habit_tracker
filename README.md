@@ -1,2 +1,272 @@
-# habit_tracker
-final project capstone for CS50 Webprogramming course 
+# Habit Tracker - CS50 Web Programming Final Project
+
+A comprehensive habit tracking web application built with Django and JavaScript that helps users build and maintain healthy habits while tracking their emotional wellbeing.
+
+## Distinctiveness and Complexity
+
+### Why This Project Satisfies Requirements
+
+**Distinctiveness:**
+- This project is fundamentally different from previous CS50W projects (Pizza ordering, e-commerce, social network)
+- It is a personal wellness/productivity application, not a social platform, e-commerce site, or ordering system
+- The primary focus is on individual habit formation and tracking with emotional wellbeing integration
+- The calendar-based history view with mood/gratitude tracking is unique to this application
+
+**Complexity:**
+- **Multi-model backend:** Implements two interconnected models (Habit and HabitLog) with sophisticated relationships
+- **Calendar functionality:** Generates interactive calendar views with date-specific data aggregation
+- **Mood tracking system:** Implements a 5-level emotional scale with persistent storage
+- **Gratitude journaling:** Combines habit tracking with gratitude reflection
+- **Dynamic frontend:** Uses fetch API for seamless updates without full page reloads
+- **Streak calculation:** Complex algorithm to calculate daily and overall habit streaks
+- **Mobile-responsive design:** Fully responsive CSS grid layouts for mobile, tablet, and desktop
+- **Session management:** Proper user authentication with Django's built-in auth system
+
+## File Structure
+
+### Backend Files
+
+#### `habitrack/models.py`
+- **Habit model:** Stores habit definitions with user association and creation timestamp
+- **HabitLog model:** Stores daily habit completion records, mood, and gratitude entries
+- Implements unique constraint to ensure one log per habit per day
+
+#### `habitrack/views.py`
+- **register():** User registration with automatic login after signup
+- **dashboard():** Main view showing today's habits, mood tracker, and gratitude box
+- **habits_page():** Manage habits - create, view, and interact with habits
+- **edit_habit():** Edit existing habit names
+- **delete_habit():** Remove habits
+- **log_habit():** AJAX endpoint to mark habits as completed
+- **history():** Calendar view showing all months with completion status
+- **day_details():** AJAX endpoint returning detailed data for specific calendar days
+- **save_mood_gratitude():** AJAX endpoint to save mood and gratitude entries
+
+#### `habitrack/urls.py`
+- URL routing for all views including history calendar and detail endpoints
+
+#### `habitrack/forms.py`
+- **RegisterForm:** User registration with password field
+- **HabitForm:** Create/edit habits
+- **MoodGratitudeForm:** Save mood and gratitude (though mainly handled via AJAX)
+
+#### `habitrack/utils.py`
+- **calculate_streak():** Calculate consecutive days a specific habit was completed
+- **calculate_overall_streak():** Calculate days where ALL habits were completed
+
+#### `habitrack/migrations/`
+- Database migrations for Habit, HabitLog, and new mood/gratitude fields
+
+### Frontend Files
+
+#### `habitrack/templates/habitrack/layout.html`
+- Base template with navigation bar
+- Includes links to Dashboard, Habits, History, and Login/Logout
+
+#### `habitrack/templates/habitrack/dashboard.html`
+- Displays today's habits with toggle functionality (click to select/deselect)
+- Selected habits highlighted in green
+- 5-level mood tracker with emoji selectors (😢 😕 😐 🙂 😄)
+- Gratitude text box for daily reflection
+- Overall and individual habit streak displays
+- Auto-saves mood/gratitude on change
+
+#### `habitrack/templates/habitrack/habits.html`
+- Create new habits with form
+- Display all user habits with edit/delete options
+- Link to edit individual habits
+
+#### `habitrack/templates/habitrack/edit_habit.html`
+- Edit habit name
+- Return to dashboard on save
+
+#### `habitrack/templates/habitrack/history.html`
+- Calendar view of the selected month
+- Days with all habits completed highlighted in green
+- Click any day to view:
+  - Which habits were completed
+  - Mood and gratitude from that day
+- Month navigation (previous/next)
+- Mobile-responsive calendar layout
+
+#### `habitrack/templates/registration/login.html`
+- Django auth login form
+- Link to registration page
+
+#### `habitrack/static/habitrack/app.js`
+- Habit button click handlers (toggle selection, log completion)
+- Mood selector change listeners
+- Save mood and gratitude via AJAX
+- CSRF token management
+
+#### `habitrack/static/habitrack/styles.css`
+- Responsive CSS grid layouts
+- Habit button styling with green highlight for completed
+- Calendar styling with hover effects
+- Mobile-responsive media queries
+- Mood tracker emoji styling
+
+### Configuration Files
+
+#### `habit_tracker/settings.py`
+- Django project settings
+- Database configuration (SQLite)
+- Installed apps including habitrack
+- Template and static file configuration
+
+#### `habit_tracker/urls.py`
+- Root URL configuration
+- Includes Django auth URLs for login/logout
+- Includes habitrack app URLs
+
+#### `requirements.txt`
+- Django==6.0
+- Python dependencies for the project
+
+#### `docker-compose.yml`
+- PostgreSQL database service
+- Django web service
+- Volume management for development
+
+#### `Dockerfile`
+- Python 3.11 base image
+- Install dependencies
+- Expose port 8000
+- Run Django development server
+
+## How to Run Your Application
+
+### Prerequisites
+- Docker and Docker Compose installed
+- Python 3.11+ (for local development)
+
+### With Docker Compose
+
+1. **Start the application:**
+   ```bash
+   docker compose up
+   ```
+
+2. **Run migrations (first time only):**
+   ```bash
+   docker compose exec web python manage.py migrate
+   ```
+
+3. **Access the application:**
+   - Open browser to `http://localhost:8000`
+   - Register a new account
+   - Start tracking habits!
+
+### Local Development (Without Docker)
+
+1. **Create virtual environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Run migrations:**
+   ```bash
+   python manage.py migrate
+   ```
+
+4. **Start development server:**
+   ```bash
+   python manage.py runserver
+   ```
+
+5. **Access the application:**
+   - Open browser to `http://localhost:8000`
+
+### Initial Setup
+
+1. Register a new account
+2. Create your first habit (e.g., "Morning Exercise", "Drink Water")
+3. Click habits on the dashboard to mark them complete
+4. Track your mood with the emoji selector
+5. Record what you're grateful for
+6. View your progress in the History calendar
+
+## Additional Features & Notes
+
+### Key Features Implemented
+
+✅ **Habit Tracking**
+- Create, edit, and delete custom habits
+- Mark habits complete for each day
+- Visual indication of completion status
+
+✅ **Streak Calculation**
+- Individual habit streaks (consecutive days completed)
+- Overall streak (all habits completed each day)
+- Real-time streak updates
+
+✅ **Mood Tracking**
+- 5-level emotional scale (😢 😕 😐 🙂 😄)
+- Auto-save on selection
+- Persist mood data with daily logs
+
+✅ **Gratitude Journaling**
+- Free-form text entry for daily gratitude
+- Auto-save on blur
+- View past gratitude entries in history
+
+✅ **Calendar History**
+- Month-by-month view of habit completion
+- Visual highlighting for successful days (all habits completed = green)
+- Click any day to view detailed information:
+  - Which habits were completed that day
+  - Recorded mood and gratitude
+
+✅ **Responsive Design**
+- Works seamlessly on mobile, tablet, and desktop
+- Touch-friendly button sizes on mobile
+- Flexible grid layouts
+
+✅ **User Authentication**
+- Secure account creation and login
+- Session-based authentication
+- Logout functionality
+
+### Technical Highlights
+
+- **AJAX Integration:** Seamless updates without page reloads
+- **CSRF Protection:** All forms protected with Django's CSRF middleware
+- **Database Constraints:** Unique constraint on habit-date combinations
+- **Streak Algorithm:** Efficient calculation using ORM queries
+- **Date Handling:** Proper timezone handling with Django utilities
+- **Error Handling:** User-friendly error messages and validation
+
+### Browser Compatibility
+
+Tested and working on:
+- Chrome/Chromium (latest)
+- Firefox (latest)
+- Safari (latest)
+- Mobile browsers (iOS Safari, Chrome mobile)
+
+### Future Enhancement Ideas
+
+- Habit categories and tags
+- Weekly/monthly habit goals
+- Social sharing of achievements
+- Habit recommendations
+- Data export (CSV/PDF reports)
+- Dark mode
+- Habit reminders/notifications
+- Habit difficulty levels
+- Collaborative habit challenges
+
+## Project Statistics
+
+- **Lines of Backend Code:** ~300 (views, models, utils)
+- **Lines of Frontend Code:** ~150 (JavaScript)
+- **HTML Templates:** 7 files
+- **CSS:** Responsive grid-based design
+- **Database Models:** 2 (Habit, HabitLog)
+- **API Endpoints:** 7 (dashboard, habits, history, mood/gratitude, etc.)

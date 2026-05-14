@@ -1,0 +1,159 @@
+{% extends "habitrack/layout.html" %}
+
+{% block title %}History - Habit Tracker{% endblock %}
+
+{% block script %}
+<script>
+function showDayDetails(year, month, day) {
+    fetch(`/history/${year}/${month}/${day}/`)
+        .then(response => response.json())
+        .then(data => {
+            const detailsDiv = document.getElementById('day-details');
+            let habitsHtml = '<h3>Habits for ' + data.date + '</h3>';
+            habitsHtml += '<ul>';
+            data.habits.forEach(habit => {
+                const status = habit.completed ? '✓ Completed' : '○ Not completed';
+                habitsHtml += `<li>${habit.name}: ${status}</li>`;
+            });
+            habitsHtml += '</ul>';
+            
+            if (data.mood) {
+                const moods = {1: '😢', 2: '😕', 3: '😐', 4: '🙂', 5: '😄'};
+                habitsHtml += `<p><strong>Mood:</strong> ${moods[data.mood]}</p>`;
+            }
+            
+            if (data.gratitude) {
+                habitsHtml += `<p><strong>Gratitude:</strong> ${data.gratitude}</p>`;
+            }
+            
+            detailsDiv.innerHTML = habitsHtml;
+        })
+        .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="history-container">
+    <h2>{{ month_name }} {{ year }}</h2>
+    
+    <div class="calendar-navigation">
+        <a href="?month={{ prev_month }}&year={{ prev_year }}" class="btn btn-sm">← Previous</a>
+        <a href="?month={{ next_month }}&year={{ next_year }}" class="btn btn-sm">Next →</a>
+    </div>
+    
+    <table class="calendar">
+        <thead>
+            <tr>
+                <th>Sun</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for week in calendar %}
+            <tr>
+                {% for day in week %}
+                <td>
+                    {% if day %}
+                        <div 
+                            class="calendar-day {% if day.all_completed %}completed{% endif %}"
+                            onclick="showDayDetails({{ day.date.year }}, {{ day.date.month }}, {{ day.date.day }})"
+                        >
+                            {{ day.day }}
+                        </div>
+                    {% else %}
+                        <div class="calendar-day empty"></div>
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div id="day-details" class="day-details">
+        <p>Click on a day to see details</p>
+    </div>
+</div>
+
+<style>
+.history-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.calendar-navigation {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+}
+
+.calendar {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border: 1px solid #ddd;
+}
+
+.calendar th {
+    background-color: #f0f0f0;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.calendar td {
+    padding: 0;
+    border: 1px solid #ddd;
+    height: 80px;
+}
+
+.calendar-day {
+    padding: 5px;
+    min-height: 80px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.calendar-day.empty {
+    background-color: #f9f9f9;
+    cursor: default;
+}
+
+.calendar-day:hover {
+    background-color: #e8e8e8;
+}
+
+.calendar-day.completed {
+    background-color: #90EE90;
+    color: #fff;
+}
+
+.day-details {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+    .calendar td {
+        height: 60px;
+    }
+    
+    .calendar-day {
+        font-size: 14px;
+    }
+}
+</style>
+{% endblock %}

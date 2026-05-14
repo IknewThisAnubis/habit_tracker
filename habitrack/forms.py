@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 
-from .models import Habit
+from .models import Habit, HabitLog
 
 
 class RegisterForm(forms.ModelForm):
@@ -25,3 +25,13 @@ class HabitForm(forms.ModelForm):
         if not name:
             raise forms.ValidationError("Habit name cannot be blank.")
         return name
+
+
+class MoodGratitudeForm(forms.ModelForm):
+    class Meta:
+        model = HabitLog
+        fields = ["mood", "gratitude"]
+        widgets = {
+            "mood": forms.RadioSelect(),
+            "gratitude": forms.Textarea(attrs={"rows": 3, "placeholder": "What are you grateful for today?"}),
+        }

@@ -25,4 +25,7 @@ urlpatterns = [
     path("habits/<int:habit_id>/delete/", views.delete_habit, name="delete_habit"),
     path("register/", views.register, name="register"),
     path("habits/<int:habit_id>/log/", views.log_habit, name="log_habit"),
+    path("history/", views.history, name="history"),
+    path("history/<int:year>/<int:month>/<int:day>/", views.day_details, name="day_details"),
+    path("save-mood-gratitude/", views.save_mood_gratitude, name="save_mood_gratitude"),
 ]

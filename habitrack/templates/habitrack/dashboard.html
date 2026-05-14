@@ -5,28 +5,217 @@
 
 {% block script %}
   <script src="{% static 'habitrack/app.js' %}" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load saved mood and gratitude
+      const moodInput = document.querySelector('input[name="mood"]');
+      const gratitudeInput = document.querySelector('textarea[name="gratitude"]');
+      
+      {% if today_log %}
+        if ({{ today_log.mood|default:"null" }}) {
+          document.querySelector(`input[value="{{ today_log.mood }}"]`).checked = true;
+        }
+        if ("{{ today_log.gratitude }}") {
+          gratitudeInput.value = "{{ today_log.gratitude|escapejs }}";
+        }
+      {% endif %}
+    });
+    
+    function saveMoodGratitude() {
+      const mood = document.querySelector('input[name="mood"]:checked')?.value;
+      const gratitude = document.querySelector('textarea[name="gratitude"]').value;
+      
+      const formData = new FormData();
+      formData.append('mood', mood || '');
+      formData.append('gratitude', gratitude);
+      
+      fetch('{% url "save_mood_gratitude" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'saved') {
+          console.log('Mood and gratitude saved!');
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    }
+  </script>
 {% endblock %}
 
 {% block content %}
-  <h1>Dashboard</h1>
-  <p>Today: {{ current_date|date:"F j, Y" }}</p>
-  <h2>Overall Streak: <span id="overall-streak">{{ overall_streak }}</span> days</h2>
-  <p class="muted">Overall streak counts days where every habit was completed.</p>
+  <div class="dashboard-container">
+    <h1>Dashboard</h1>
+    <p>Today: {{ current_date|date:"F j, Y" }}</p>
+    <h2>Overall Streak: <span id="overall-streak">{{ overall_streak }}</span> days</h2>
+    <p class="muted">Overall streak counts days where every habit was completed.</p>
 
-  {% if habits %}
-    <div class="grid">
-      {% for habit in habits %}
-        <button
-          class="habit-btn"
-          data-habit-id="{{ habit.id }}"
-          data-done="{{ habit.done_today|yesno:'1,0' }}"
-          {% if habit.done_today %}disabled{% endif %}
-        >
-          {{ habit.name }}
-        </button>
-      {% endfor %}
+    <!-- Habits Section -->
+    <div class="habits-section">
+      <h3>Today's Habits</h3>
+      {% if habits %}
+        <div class="grid">
+          {% for habit in habits %}
+            <button
+              class="habit-btn"
+              data-habit-id="{{ habit.id }}"
+              data-done="{{ habit.done_today|yesno:'1,0' }}"
+            >
+              {{ habit.name }}
+            </button>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>No habits yet. Add some in the Habits page.</p>
+      {% endif %}
     </div>
-  {% else %}
-    <p>No habits yet. Add some in the Habits page.</p>
-  {% endif %}
+
+    <!-- Mood Tracker Section -->
+    <div class="mood-section">
+      <h3>Mood Tracker</h3>
+      <div class="mood-tracker">
+        <label class="mood-label">
+          <input type="radio" name="mood" value="1">
+          <span class="mood-emoji">😢</span>
+        </label>
+        <label class="mood-label">
+          <input type="radio" name="mood" value="2">
+          <span class="mood-emoji">😕</span>
+        </label>
+        <label class="mood-label">
+          <input type="radio" name="mood" value="3">
+          <span class="mood-emoji">😐</span>
+        </label>
+        <label class="mood-label">
+          <input type="radio" name="mood" value="4">
+          <span class="mood-emoji">🙂</span>
+        </label>
+        <label class="mood-label">
+          <input type="radio" name="mood" value="5">
+          <span class="mood-emoji">😄</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Gratitude Section -->
+    <div class="gratitude-section">
+      <h3>Gratitude</h3>
+      <textarea 
+        name="gratitude" 
+        placeholder="What are you grateful for today?" 
+        rows="4"
+        onchange="saveMoodGratitude()"
+        onblur="saveMoodGratitude()"
+      ></textarea>
+    </div>
+
+    <button class="btn btn-primary" onclick="saveMoodGratitude()">Save</button>
+  </div>
+
+  <style>
+    .dashboard-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .habits-section h3,
+    .mood-section h3,
+    .gratitude-section h3 {
+      margin-bottom: 15px;
+    }
+
+    .mood-tracker {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 15px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mood-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      gap: 8px;
+    }
+
+    .mood-label input[type="radio"] {
+      display: none;
+    }
+
+    .mood-emoji {
+      font-size: 32px;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .mood-label input[type="radio"]:checked + .mood-emoji {
+      border-color: #4CAF50;
+      background-color: #E8F5E9;
+      transform: scale(1.1);
+    }
+
+    .gratitude-section {
+      margin: 30px 0;
+    }
+
+    .gratitude-section textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .habit-btn {
+      padding: 12px 15px;
+      border: 2px solid #ddd;
+      background-color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .habit-btn:hover {
+      border-color: #4CAF50;
+      background-color: #f0f0f0;
+    }
+
+    .habit-btn.selected {
+      background-color: #90EE90;
+      border-color: #4CAF50;
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .mood-tracker {
+        justify-content: space-around;
+      }
+
+      .grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      }
+    }
+  </style>
 {% endblock %}
+
