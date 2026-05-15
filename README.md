@@ -4,10 +4,7 @@ A comprehensive habit tracking web application built with Django and JavaScript 
 
 ## Distinctiveness and Complexity
 
-### Why This Project Satisfies Requirements
-
 **Distinctiveness:**
-- This project is fundamentally different from previous CS50W projects (Pizza ordering, e-commerce, social network)
 - It is a personal wellness/productivity application, not a social platform, e-commerce site, or ordering system
 - The primary focus is on individual habit formation and tracking with emotional wellbeing integration
 - The calendar-based history view with mood/gratitude tracking is unique to this application
@@ -69,7 +66,7 @@ A comprehensive habit tracking web application built with Django and JavaScript 
 - 5-level mood tracker with emoji selectors (😢 😕 😐 🙂 😄)
 - Gratitude text box for daily reflection
 - Overall and individual habit streak displays
-- Auto-saves mood/gratitude on change
+- Data attributes pass saved mood/gratitude to JavaScript for auto-loading
 
 #### `habitrack/templates/habitrack/habits.html`
 - Create new habits with form
@@ -81,12 +78,12 @@ A comprehensive habit tracking web application built with Django and JavaScript 
 - Return to dashboard on save
 
 #### `habitrack/templates/habitrack/history.html`
-- Calendar view of the selected month
+- Calendar view of the selected month with navigation
 - Days with all habits completed highlighted in green
-- Click any day to view:
+- Click any day to fetch and display:
   - Which habits were completed
   - Mood and gratitude from that day
-- Month navigation (previous/next)
+- Month navigation (previous/next buttons)
 - Mobile-responsive calendar layout
 
 #### `habitrack/templates/registration/login.html`
@@ -94,17 +91,21 @@ A comprehensive habit tracking web application built with Django and JavaScript 
 - Link to registration page
 
 #### `habitrack/static/habitrack/app.js`
-- Habit button click handlers (toggle selection, log completion)
-- Mood selector change listeners
-- Save mood and gratitude via AJAX
-- CSRF token management
+- **Habit tracking:** Button click handlers for toggling selection and logging completion
+- **Mood management:** Radio input change listeners and emoji selection functionality
+- **Gratitude saving:** Auto-save mood and gratitude via AJAX on blur/change events
+- **Calendar interaction:** `showDayDetails()` function to fetch and display day-specific data
+- **Data loading:** `loadSavedMoodGratitude()` to restore saved mood/gratitude from page data attributes
+- **CSRF protection:** Token retrieval and inclusion in all POST requests
 
 #### `habitrack/static/habitrack/styles.css`
-- Responsive CSS grid layouts
-- Habit button styling with green highlight for completed
-- Calendar styling with hover effects
-- Mobile-responsive media queries
-- Mood tracker emoji styling
+- **Layout:** Dashboard container with max-width constraints, responsive grid system
+- **Habit buttons:** Toggle styling with green highlight (#90EE90) for selected habits
+- **Mood tracker:** Emoji selector with hidden radio inputs, scale animation on selection
+- **Gratitude box:** Full-width textarea with auto-save triggers
+- **Calendar:** Full month view with day cells, green highlighting for completed days, hover effects
+- **Responsive design:** Media queries for mobile (768px) and tablet (600px) breakpoints
+- **Button styles:** Primary button with hover effects, navigation buttons
 
 ### Configuration Files
 
@@ -264,9 +265,10 @@ Tested and working on:
 
 ## Project Statistics
 
-- **Lines of Backend Code:** ~300 (views, models, utils)
-- **Lines of Frontend Code:** ~150 (JavaScript)
-- **HTML Templates:** 7 files
-- **CSS:** Responsive grid-based design
-- **Database Models:** 2 (Habit, HabitLog)
-- **API Endpoints:** 7 (dashboard, habits, history, mood/gratitude, etc.)
+- **Backend Code:** ~350 lines (views with calendar generation, models with streak calculation, utils)
+- **Frontend Code:** ~200 lines (consolidated JavaScript with AJAX, event handling, data fetching)
+- **CSS:** ~300 lines (comprehensive responsive design with mobile breakpoints)
+- **HTML Templates:** 7 template files (Django templates with minimal embedded logic)
+- **Database Models:** 2 (Habit, HabitLog with mood/gratitude fields)
+- **API Endpoints:** 9 (dashboard, habits management, history, calendar, mood/gratitude save/load)
+- **Code Organization:** Clean separation of concerns - all JS in app.js, all CSS in styles.css, templates contain markup only

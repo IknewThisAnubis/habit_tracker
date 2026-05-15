@@ -5,50 +5,10 @@
 
 {% block script %}
   <script src="{% static 'habitrack/app.js' %}" defer></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Load saved mood and gratitude
-      const moodInput = document.querySelector('input[name="mood"]');
-      const gratitudeInput = document.querySelector('textarea[name="gratitude"]');
-      
-      {% if today_log %}
-        if ({{ today_log.mood|default:"null" }}) {
-          document.querySelector(`input[value="{{ today_log.mood }}"]`).checked = true;
-        }
-        if ("{{ today_log.gratitude }}") {
-          gratitudeInput.value = "{{ today_log.gratitude|escapejs }}";
-        }
-      {% endif %}
-    });
-    
-    function saveMoodGratitude() {
-      const mood = document.querySelector('input[name="mood"]:checked')?.value;
-      const gratitude = document.querySelector('textarea[name="gratitude"]').value;
-      
-      const formData = new FormData();
-      formData.append('mood', mood || '');
-      formData.append('gratitude', gratitude);
-      
-      fetch('{% url "save_mood_gratitude" %}', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'saved') {
-          console.log('Mood and gratitude saved!');
-        }
-      })
-      .catch(error => console.error('Error:', error));
-    }
-  </script>
 {% endblock %}
 
 {% block content %}
-  <div class="dashboard-container">
+  <div class="dashboard-container" data-mood="{{ today_log.mood|default:'' }}" data-gratitude="{{ today_log.gratitude|default:''|escapejs }}">
     <h1>Dashboard</h1>
     <p>Today: {{ current_date|date:"F j, Y" }}</p>
     <h2>Overall Streak: <span id="overall-streak">{{ overall_streak }}</span> days</h2>
@@ -115,107 +75,5 @@
 
     <button class="btn btn-primary" onclick="saveMoodGratitude()">Save</button>
   </div>
-
-  <style>
-    .dashboard-container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .habits-section h3,
-    .mood-section h3,
-    .gratitude-section h3 {
-      margin-bottom: 15px;
-    }
-
-    .mood-tracker {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      gap: 15px;
-      padding: 20px;
-      background-color: #f9f9f9;
-      border-radius: 8px;
-      flex-wrap: wrap;
-    }
-
-    .mood-label {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      gap: 8px;
-    }
-
-    .mood-label input[type="radio"] {
-      display: none;
-    }
-
-    .mood-emoji {
-      font-size: 32px;
-      padding: 10px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      transition: all 0.3s;
-      cursor: pointer;
-    }
-
-    .mood-label input[type="radio"]:checked + .mood-emoji {
-      border-color: #4CAF50;
-      background-color: #E8F5E9;
-      transform: scale(1.1);
-    }
-
-    .gratitude-section {
-      margin: 30px 0;
-    }
-
-    .gratitude-section textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-    }
-
-    .habit-btn {
-      padding: 12px 15px;
-      border: 2px solid #ddd;
-      background-color: #fff;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s;
-    }
-
-    .habit-btn:hover {
-      border-color: #4CAF50;
-      background-color: #f0f0f0;
-    }
-
-    .habit-btn.selected {
-      background-color: #90EE90;
-      border-color: #4CAF50;
-      color: #fff;
-    }
-
-    @media (max-width: 768px) {
-      .mood-tracker {
-        justify-content: space-around;
-      }
-
-      .grid {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      }
-    }
-  </style>
 {% endblock %}
 
