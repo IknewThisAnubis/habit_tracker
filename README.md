@@ -145,7 +145,7 @@ A comprehensive habit tracking web application built with Django and JavaScript 
 
 1. **Start the application:**
    ```bash
-   docker compose up
+   docker compose up -d
    ```
 
 2. **Run migrations (first time only):**
@@ -155,8 +155,7 @@ A comprehensive habit tracking web application built with Django and JavaScript 
 
 3. **Access the application:**
    - Open browser to `http://localhost:8000`
-   - Register a new account
-   - Start tracking habits!
+
 
 ### Local Development (Without Docker)
 
@@ -193,63 +192,7 @@ A comprehensive habit tracking web application built with Django and JavaScript 
 5. Record what you're grateful for
 6. View your progress in the History calendar
 
-## Additional Features & Notes
 
-### Key Features Implemented
-
-✅ **Habit Tracking**
-- Create, edit, and delete custom habits
-- Mark habits complete for each day
-- Visual indication of completion status
-
-✅ **Streak Calculation**
-- Individual habit streaks (consecutive days completed)
-- Overall streak (all habits completed each day)
-- Real-time streak updates
-
-✅ **Mood Tracking**
-- 5-level emotional scale (😢 😕 😐 🙂 😄)
-- Auto-save on selection
-- Persist mood data with daily logs
-
-✅ **Gratitude Journaling**
-- Free-form text entry for daily gratitude
-- Auto-save on blur
-- View past gratitude entries in history
-
-✅ **Calendar History**
-- Month-by-month view of habit completion
-- Visual highlighting for successful days (all habits completed = green)
-- Click any day to view detailed information:
-  - Which habits were completed that day
-  - Recorded mood and gratitude
-
-✅ **Responsive Design**
-- Works seamlessly on mobile, tablet, and desktop
-- Touch-friendly button sizes on mobile
-- Flexible grid layouts
-
-✅ **User Authentication**
-- Secure account creation and login
-- Session-based authentication
-- Logout functionality
-
-### Technical Highlights
-
-- **AJAX Integration:** Seamless updates without page reloads
-- **CSRF Protection:** All forms protected with Django's CSRF middleware
-- **Database Constraints:** Unique constraint on habit-date combinations
-- **Streak Algorithm:** Efficient calculation using ORM queries
-- **Date Handling:** Proper timezone handling with Django utilities
-- **Error Handling:** User-friendly error messages and validation
-
-### Browser Compatibility
-
-Tested and working on:
-- Chrome/Chromium (latest)
-- Firefox (latest)
-- Safari (latest)
-- Mobile browsers (iOS Safari, Chrome mobile)
 
 ### Future Enhancement Ideas
 
@@ -262,13 +205,4 @@ Tested and working on:
 - Habit reminders/notifications
 - Habit difficulty levels
 - Collaborative habit challenges
-
-## Project Statistics
-
-- **Backend Code:** ~350 lines (views with calendar generation, models with streak calculation, utils)
-- **Frontend Code:** ~200 lines (consolidated JavaScript with AJAX, event handling, data fetching)
-- **CSS:** ~300 lines (comprehensive responsive design with mobile breakpoints)
-- **HTML Templates:** 7 template files (Django templates with minimal embedded logic)
-- **Database Models:** 2 (Habit, HabitLog with mood/gratitude fields)
-- **API Endpoints:** 9 (dashboard, habits management, history, calendar, mood/gratitude save/load)
-- **Code Organization:** Clean separation of concerns - all JS in app.js, all CSS in styles.css, templates contain markup only
+- gamifications 
