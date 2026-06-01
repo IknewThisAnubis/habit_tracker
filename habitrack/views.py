@@ -80,7 +80,7 @@ def edit_habit(request, habit_id):
         form = HabitForm(request.POST, instance=habit)
         if form.is_valid():
             form.save()
-            return redirect("dashboard")
+            return redirect("habits")
     else:
         form = HabitForm(instance=habit)
     return render(
